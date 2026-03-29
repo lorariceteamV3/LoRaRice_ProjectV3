@@ -1,0 +1,661 @@
+{
+  "ruleChain": {
+    "name": "LoRa-Pump-Auto",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "version": 120,
+    "firstNodeIndex": 1,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "Pump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772945402731
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "RELATED",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": null,
+          "entityNamePattern": null,
+          "relationsQuery": {
+            "fetchLastLevelOnly": false,
+            "direction": "FROM",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Contains1Pump1",
+                "entityTypes": null
+              }
+            ]
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 267,
+          "layoutY": 294
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetOriginatorFieldsNode",
+        "name": "Get originator fields",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772875587029
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "dataMapping": {
+            "name": "originatorName"
+          },
+          "ignoreNullStrings": false,
+          "fetchTo": "METADATA"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 265,
+          "layoutY": 151
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "Sensor",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772875587029
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return msg.temperature > 20;",
+          "tbelScript": "name = metadata.originatorName != null ? metadata.originatorName.toLowerCase() : \"\";\r\nreturn name.endsWith(\"-sensor\");\r\n"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 547,
+          "layoutY": 153
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "attributesPump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772945402731
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": true,
+          "fetchTo": "DATA",
+          "clientAttributeNames": [],
+          "sharedAttributeNames": [
+            "mode",
+            "settingWaterAutoOn",
+            "settingWaterAutoOff",
+            "statePump"
+          ],
+          "serverAttributeNames": [],
+          "latestTsKeyNames": [],
+          "getLatestValueWithTs": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 552,
+          "layoutY": 294
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "checkMode",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772955072111
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return msg.temperature > 20;",
+          "tbelScript": "return msg.shared_mode == \"AUTO\";"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 263,
+          "layoutY": 523
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.mqtt.TbMqttNode",
+        "name": "MQTT-Pump-moodeng",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772182258186
+        },
+        "singletonMode": true,
+        "queueName": null,
+        "configurationVersion": 2,
+        "configuration": {
+          "topicPattern": "v3/lorarice-v3@moodenglesyslab/devices/lorarice-node1-pump/down/push",
+          "host": "as1.cloud.thethings.industries",
+          "port": 8883,
+          "connectTimeoutSec": 10,
+          "clientId": null,
+          "parseToPlainText": true,
+          "cleanSession": true,
+          "retainedMessage": false,
+          "ssl": true,
+          "protocolVersion": "MQTT_3_1_1",
+          "credentials": {
+            "type": "basic",
+            "username": "lorarice-v3@moodenglesyslab",
+            "password": "NNSXS.DPRVDFOO4EGR65DOSHD7G5U76X232MNWGX6MVLQ.RWJY5FQZAW3CZE54PFRB2QEUB73KDUWRJNMADU5YCOTVWDVE2XJA"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1261,
+          "layoutY": 618
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "checkWaterLevel",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// อ่านค่าจาก telemetry / attribute\r\nvar level = Math.round(msg.distanceOffset);\r\nvar autoOn = msg.shared_settingWaterAutoOn;\r\nvar autoOff = msg.shared_settingWaterAutoOff;\r\nvar pumpState = msg.shared_statePump;\r\n\r\n// กำหนดสถานะใหม่เริ่มต้น = สถานะเดิม\r\nvar newState = pumpState;\r\n\r\n// เงื่อนไขเปิดปั๊ม\r\nif (pumpState === false && level <= autoOn) {\r\n    newState = true;\r\n}\r\n\r\n// เงื่อนไขปิดปั๊ม\r\nif (pumpState === true && level >= autoOff) {\r\n    newState = false;\r\n}\r\n\r\n// ถ้าสถานะไม่เปลี่ยน\r\nif (newState == pumpState) {\r\n    msg.noChange = true;\r\n} else {\r\n    msg.statePump = newState;\r\n    msg.noChange = false;\r\n}\r\n\r\nreturn { msg: msg, metadata: metadata, msgType: msgType };"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 507,
+          "layoutY": 523
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "AutoMode",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var payload;\r\n\r\n// ตรวจสอบสถานะปั๊ม\r\nif (msg.statePump === true) {\r\n    payload = \"AAE=\";   // เปิดปั๊ม\r\n} else {\r\n    payload = \"AAA=\";   // ปิดปั๊ม\r\n}\r\n\r\nvar downlink = {\r\n    downlinks: [\r\n        {\r\n            f_port: 2,\r\n            frm_payload: payload,\r\n            priority: \"NORMAL\",\r\n            confirmed: true\r\n        }\r\n    ]\r\n};\r\n\r\nreturn {\r\n    msg: downlink,\r\n    metadata: metadata,\r\n    msgType: msgType\r\n};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 978,
+          "layoutY": 522
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "statePump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var payload = msg.downlinks != null ? msg.downlinks[0].frm_payload : null;\r\n\r\n// กำหนดสถานะปั๊มตาม payload\r\nif (payload == \"AAE=\") {\r\n    msg.statePump = true;\r\n} else if (payload == \"AAA=\") {\r\n    msg.statePump = false;\r\n}\r\n\r\n// ส่งไป update attribute\r\nreturn {\r\n    msg: msg,\r\n    metadata: metadata,\r\n    msgType: \"POST_ATTRIBUTES_REQUEST\"\r\n};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1258,
+          "layoutY": 444
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgAttributesNode",
+        "name": "statePump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "processingSettings": {
+            "attributes": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "webSockets": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "calculatedFields": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "type": "ADVANCED"
+          },
+          "scope": "SHARED_SCOPE",
+          "notifyDevice": false,
+          "sendAttributesUpdatedNotification": false,
+          "updateAttributesOnlyOnValueChange": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1539,
+          "layoutY": 311
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "statePump==true",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return msg.temperature > 20;",
+          "tbelScript": "return msg.statePump == true;"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1536,
+          "layoutY": 445
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "time",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// เพิ่มเวลา\nvar now = new Date();\nmsg.time = now.getHours() + \":\" + now.getMinutes() + \":\" + now.getSeconds();\n\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1778,
+          "layoutY": 394
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "time",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// เพิ่มเวลา\nvar now = new Date();\nmsg.time = now.getHours() + \":\" + now.getMinutes() + \":\" + now.getSeconds();\n\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1777,
+          "layoutY": 492
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "Pump-Auto-On",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772893235054
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "useMessageAlarmData": false,
+          "overwriteAlarmDetails": false,
+          "alarmType": "$[time] Auto On",
+          "severity": "WARNING",
+          "propagate": false,
+          "relationTypes": [],
+          "propagateToOwner": false,
+          "propagateToOwnerHierarchy": false,
+          "propagateToTenant": false,
+          "dynamicSeverity": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 2031,
+          "layoutY": 395
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "Pump-Auto-Off",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772893235054
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\nif (metadata.prevAlarmDetails != null) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    metadata.remove('prevAlarmDetails');\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "useMessageAlarmData": false,
+          "overwriteAlarmDetails": false,
+          "alarmType": "$[time] Auto Off",
+          "severity": "WARNING",
+          "propagate": false,
+          "relationTypes": [],
+          "propagateToOwner": false,
+          "propagateToOwnerHierarchy": false,
+          "propagateToTenant": false,
+          "dynamicSeverity": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 2035,
+          "layoutY": 493
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772955512791
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "restEndpointUrlPattern": "https://loraricenoti.ngrok.app/alarm",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": {
+            "type": "anonymous"
+          },
+          "maxInMemoryBufferSizeInKb": 256
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 2032,
+          "layoutY": 630
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "msg = {\r\n    device: msg.originatorName,\r\n    message: \"🚨 Pump Alert\\nStatus: Auto Off\"\r\n};\r\n\r\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1781,
+          "layoutY": 631
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "noChange",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772956282124
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "if (msg.temperature >= 20) {\n    return true;\n}\nelse{\n    return false;\n}",
+          "tbelScript": "return msg.noChange == true;"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 747,
+          "layoutY": 524
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "restEndpointUrlPattern": "https://loraricenoti.ngrok.app/alarm",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": {
+            "type": "anonymous"
+          },
+          "maxInMemoryBufferSizeInKb": 256
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 2031,
+          "layoutY": 239
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "msg = {\r\n    device: msg.originatorName,\r\n    message: \"🚨 Pump Alert\\nStatus: Auto On\"\r\n};\r\n\r\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1780,
+          "layoutY": 240
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 0,
+        "type": "True"
+      },
+      {
+        "fromIndex": 3,
+        "toIndex": 4,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 6,
+        "type": "True"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 17,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 9,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 10,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 10,
+        "toIndex": 11,
+        "type": "True"
+      },
+      {
+        "fromIndex": 10,
+        "toIndex": 12,
+        "type": "False"
+      },
+      {
+        "fromIndex": 11,
+        "toIndex": 13,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 12,
+        "toIndex": 14,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 13,
+        "toIndex": 19,
+        "type": "Created"
+      },
+      {
+        "fromIndex": 14,
+        "toIndex": 16,
+        "type": "Created"
+      },
+      {
+        "fromIndex": 16,
+        "toIndex": 15,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 17,
+        "toIndex": 7,
+        "type": "False"
+      },
+      {
+        "fromIndex": 19,
+        "toIndex": 18,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}

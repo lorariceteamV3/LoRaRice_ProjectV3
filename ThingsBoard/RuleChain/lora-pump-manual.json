@@ -1,0 +1,306 @@
+{
+  "ruleChain": {
+    "name": "LoRa-Pump-Manual",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "version": 95,
+    "firstNodeIndex": 1,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Mode",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772874738359
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "// mode มาจาก Shared attribute ที่ widget เพิ่ง save (AUTO / MANUAL)\r\nvar mode = msg.shared_mode;\r\nvar sw = msg.shared_statePump;\r\n\r\n// map เป็น frm_payload ที่ต้องการ\r\nvar payload = null;\r\nif (mode == \"AUTO\") {\r\n  payload = \"AAA=\";\r\n} else if (mode == \"MANUAL\") {\r\n    if(sw == true){\r\n        payload = \"AQE=\";\r\n    }\r\n    else if (sw == false){\r\n        payload = \"AQA=\";\r\n    }\r\n    else{\r\n        return null;\r\n    }\r\n}\r\nelse {\r\n  return null; // ไม่ใช่โหมดที่รองรับก็ไม่ส่ง\r\n}\r\n\r\n// สร้าง output ให้ตรงรูปแบบที่ต้องการ\r\nreturn {\r\n  msg: {\r\n    downlinks: [\r\n      {\r\n        f_port: \"2\",\r\n        frm_payload: payload,\r\n        priority: \"NORMAL\",\r\n        confirmed: true\r\n      }\r\n    ]\r\n  },\r\n  metadata: {\r\n    deviceType: metadata.deviceType,\r\n    deviceName: metadata.deviceName,\r\n    ts: metadata.ts\r\n  },\r\n  msgType: \"POST_TELEMETRY_REQUEST\"\r\n};\r\n"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 576,
+          "layoutY": 385
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetAttributesNode",
+        "name": "Pump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772874738359
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "tellFailureIfAbsent": true,
+          "fetchTo": "DATA",
+          "clientAttributeNames": [],
+          "latestTsKeyNames": [],
+          "serverAttributeNames": [],
+          "sharedAttributeNames": [
+            "mode",
+            "statePump"
+          ],
+          "getLatestValueWithTs": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 274,
+          "layoutY": 149
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.mqtt.TbMqttNode",
+        "name": "MQTT-Pump-moodeng",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": true,
+        "queueName": null,
+        "configurationVersion": 2,
+        "configuration": {
+          "topicPattern": "v3/lorarice-v3@moodenglesyslab/devices/lorarice-node1-pump/down/push",
+          "host": "as1.cloud.thethings.industries",
+          "port": 8883,
+          "connectTimeoutSec": 10,
+          "clientId": null,
+          "parseToPlainText": true,
+          "cleanSession": true,
+          "retainedMessage": false,
+          "ssl": true,
+          "protocolVersion": "MQTT_3_1_1",
+          "credentials": {
+            "type": "basic",
+            "username": "lorarice-v3@moodenglesyslab",
+            "password": "NNSXS.DPRVDFOO4EGR65DOSHD7G5U76X232MNWGX6MVLQ.RWJY5FQZAW3CZE54PFRB2QEUB73KDUWRJNMADU5YCOTVWDVE2XJA"
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 870,
+          "layoutY": 384
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.action.TbCreateAlarmNode",
+        "name": "pump",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 0
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "alarmDetailsBuildJs": "var details = {};\nif (metadata.prevAlarmDetails) {\n    details = JSON.parse(metadata.prevAlarmDetails);\n    //remove prevAlarmDetails from metadata\n    delete metadata.prevAlarmDetails;\n    //now metadata is the same as it comes IN this rule node\n}\n\n\nreturn details;",
+          "alarmDetailsBuildTbel": "var details = {};\r\n\r\ndetails.mode = msg.shared_mode;\r\ndetails.pump = msg.shared_statePump ? \"ON\" : \"OFF\";\r\n\r\nvar now = new Date();\r\ndetails.time = now.toLocaleTimeString();\r\n\r\nreturn details;",
+          "useMessageAlarmData": false,
+          "overwriteAlarmDetails": false,
+          "alarmType": "$[time] $[pump_status]",
+          "severity": "WARNING",
+          "propagate": false,
+          "relationTypes": [],
+          "propagateToOwner": false,
+          "propagateToOwnerHierarchy": false,
+          "propagateToTenant": false,
+          "dynamicSeverity": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 884,
+          "layoutY": 183
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "swMode",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773038446866
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "var mode = msg.shared_mode;\r\nvar sw = msg.shared_statePump;\r\n\r\n// สร้างเวลาสั้น ๆ\r\nvar now = new Date();\r\nmsg.time = now.getHours() + \":\" + now.getMinutes() + \":\" + now.getSeconds();\r\n\r\nif (mode == \"MANUAL\" && sw == true) {\r\n    msg.pump_status = \"Manual ON\";\r\n}\r\nelse if (mode == \"MANUAL\" && sw == false) {\r\n    msg.pump_status = \"Manual OFF\";\r\n}\r\nelse if (mode == \"AUTO\" && sw == true) {\r\n    msg.pump_status = \"Auto ON\";\r\n}\r\nelse if (mode == \"AUTO\" && sw == false) {\r\n    msg.pump_status = \"Auto OFF\";\r\n}\r\n\r\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 579,
+          "layoutY": 185
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773038446866
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 3,
+        "configuration": {
+          "restEndpointUrlPattern": "https://loraricenoti.ngrok.app/alarm",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 0,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "credentials": {
+            "type": "anonymous"
+          },
+          "maxInMemoryBufferSizeInKb": 256
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1241,
+          "layoutY": 275
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "line",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773038446866
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};",
+          "tbelScript": "msg = {\r\n    device: metadata.originatorName,\r\n    message: \"🚨 Pump Alert\\nStatus: \" + msg.pump_status\r\n};\r\n\r\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 1003,
+          "layoutY": 277
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.filter.TbJsFilterNode",
+        "name": "test",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1772874738359
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "jsScript": "return msg.temperature > 20;",
+          "tbelScript": "if (msg.statePump != null) {\r\n    return true;\r\n}\r\n\r\nif (msg.mode != null) {\r\n    return true;\r\n}\r\n\r\nreturn false;"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 274,
+          "layoutY": 267
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.metadata.TbGetOriginatorFieldsNode",
+        "name": "label",
+        "debugSettings": null,
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "fetchTo": "METADATA",
+          "dataMapping": {
+            "name": "originatorName",
+            "type": "originatorType"
+          },
+          "ignoreNullStrings": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 780,
+          "layoutY": 273
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 7,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 3,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 4,
+        "toIndex": 8,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 6,
+        "toIndex": 5,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 0,
+        "type": "True"
+      },
+      {
+        "fromIndex": 7,
+        "toIndex": 4,
+        "type": "True"
+      },
+      {
+        "fromIndex": 8,
+        "toIndex": 6,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
