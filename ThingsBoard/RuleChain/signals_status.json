@@ -1,0 +1,125 @@
+{
+  "ruleChain": {
+    "name": "signals_status",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": ""
+    }
+  },
+  "metadata": {
+    "version": 21,
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "Extract RSSI SNR",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773049397393
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "JS",
+          "jsScript": "// สร้าง msg ใหม่\r\nvar newMsg = {};\r\n\r\n// set device ที่จะ save\r\nmetadata.deviceName = msg.end_device_ids.device_id;\r\n\r\n// extract rssi snr\r\nif (msg.uplink_message && msg.uplink_message.rx_metadata && msg.uplink_message.rx_metadata.length > 0) {\r\n    var meta = msg.uplink_message.rx_metadata[0];\r\n\r\n    newMsg.rssi = meta.rssi;\r\n    newMsg.snr = meta.snr;\r\n}\r\n\r\nreturn {msg: newMsg, metadata: metadata, msgType: \"POST_TELEMETRY_REQUEST\"};",
+          "tbelScript": "// uplink_message เป็น string JSON\r\nvar data = parseJson(msg.uplink_message);\r\n\r\n// เช็คว่ามี rx_metadata หรือไม่\r\nif (data.rx_metadata != null && data.rx_metadata.length > 0) {\r\n\r\n    var meta = data.rx_metadata[0];\r\n\r\n    msg.rssi = meta.rssi;\r\n    msg.snr = meta.snr;\r\n}\r\n\r\nreturn {msg: msg, metadata: metadata, msgType: msgType};"
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 311,
+          "layoutY": 215
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.telemetry.TbMsgTimeseriesNode",
+        "name": "Save RSSI SNR",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773049397393
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "processingSettings": {
+            "timeseries": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "latest": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "webSockets": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "calculatedFields": {
+              "type": "ON_EVERY_MESSAGE"
+            },
+            "type": "ADVANCED"
+          },
+          "defaultTTL": 0,
+          "useServerTs": false
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 849,
+          "layoutY": 219
+        }
+      },
+      {
+        "type": "org.thingsboard.rule.engine.transform.TbChangeOriginatorNode",
+        "name": "name",
+        "debugSettings": {
+          "failuresEnabled": false,
+          "allEnabled": false,
+          "allEnabledUntil": 1773049397393
+        },
+        "singletonMode": false,
+        "queueName": null,
+        "configurationVersion": 1,
+        "configuration": {
+          "originatorSource": "ENTITY",
+          "preserveOriginatorIfCustomer": false,
+          "entityType": "DEVICE",
+          "entityNamePattern": "${deviceName}",
+          "relationsQuery": {
+            "direction": "FROM",
+            "maxLevel": 1,
+            "filters": [
+              {
+                "relationType": "Contains",
+                "entityTypes": [],
+                "negate": false
+              }
+            ],
+            "fetchLastLevelOnly": false
+          }
+        },
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 585,
+          "layoutY": 218
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 2,
+        "type": "Success"
+      },
+      {
+        "fromIndex": 2,
+        "toIndex": 1,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
