@@ -137,5 +137,3 @@ digitalWrite(PIN_VEXT_CTRL, LOW);  // OFF
 
 LoRaRice Project V3
 
-```
-```
