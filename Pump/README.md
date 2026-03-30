@@ -1,4 +1,4 @@
-````markdown
+
 # 🚰 Pump Controller (LoRaWAN)
 
 โค้ดนี้ใช้สำหรับควบคุม **ปั๊มน้ำผ่าน LoRaWAN**  
@@ -128,5 +128,4 @@ uint32_t appTxDutyCycle = 15000;
 
 LoRaRice Project V3
 
-```
-```
+
