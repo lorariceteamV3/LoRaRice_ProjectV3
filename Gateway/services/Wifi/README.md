@@ -1,6 +1,4 @@
 
-
-```markdown
 # 📶 WiFi Auto Connect + LED Status (Ready-to-use)
 
 โปรเจกต์นี้เป็นชุดไฟล์สำเร็จรูป สำหรับ:
