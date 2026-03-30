@@ -1,4 +1,4 @@
-```markdown
+
 # 🌾 LoRaRice Project V3
 
 ระบบ **Smart Farming** สำหรับวัดระดับน้ำและควบคุมปั๊มน้ำ  
@@ -40,7 +40,7 @@ LoRaRice_ProjectV3/
 ## ⚙️ การทำงาน
 
 1. 🌡️ Sensor อ่านค่า → ส่งผ่าน LoRaWAN  
-2. 🚪 Gateway ในไฟล์จะมีไฟล์ service และ script จัดการระบบ  
+2. 🚪 Gateway ใช้ service และ script จัดการระบบ  
 3. 📊 ThingsBoard ประมวลผลข้อมูล  
 4. 🚰 Pump รับคำสั่งและทำงาน  
 
@@ -57,4 +57,4 @@ LoRaRice_ProjectV3/
 ## 👨‍💻 ผู้พัฒนา
 
 LoRaRice Team V3
-```
+
