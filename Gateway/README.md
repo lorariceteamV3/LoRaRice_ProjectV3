@@ -1,12 +1,49 @@
-ได้ครับ อันนี้ README สำหรับ `reset_lgw.sh` แบบสั้น กระชับ และชัดว่า “ใช้แทนของเดิม” 👇
+
+````markdown
+# 🚪 Gateway
+
+โฟลเดอร์นี้ใช้สำหรับเก็บไฟล์ที่เกี่ยวข้องกับการทำงานของ **Raspberry Pi Gateway**  
+เช่น สคริปต์รีเซ็ต LoRa Gateway และ service ต่าง ๆ สำหรับเซนเซอร์, LoRa และ Wi-Fi
 
 ---
 
-```markdown
-# 🔄 SX1302 Reset Script (WM1302 Gateway)
+## 📁 โครงสร้างโฟลเดอร์
 
-สคริปต์นี้ใช้สำหรับ reset LoRa Gateway (SX1302 / CoreCell)  
+```text
+Gateway/
+├── README.md
+├── reset_lgw.sh
+└── services/
+    ├── Bme280/
+    │   ├── README.md
+    │   ├── bmeread.py
+    │   └── bmeread.service
+    │
+    ├── LoRa/
+    │   ├── README.md
+    │   ├── lora-packet-forwarder.service
+    │   ├── watch-lora.sh
+    │   └── LoRa_ledstatus/
+    │       ├── README.md
+    │       └── lora_pkt_fwd.c
+    │
+    └── Wifi/
+        ├── README.md
+        ├── wifi-check-or-connect.service
+        ├── wifi-check-or-connect.sh
+        ├── wifi-check-or-connect.timer
+        ├── wifi-led-daemon.py
+        └── wifi-led.service
+````
+
+---
+
+## 🔄 reset_lgw.sh
+
+สคริปต์นี้ใช้สำหรับ reset LoRa Gateway (SX1302 / CoreCell)
 โดยใช้ GPIO ของ Raspberry Pi
+
+> ✅ ใช้ไฟล์นี้แทน reset script เดิมของ `sx1302_hal`
 
 ---
 
@@ -14,31 +51,19 @@
 
 ให้ติดตั้ง WM1302 ให้เรียบร้อยก่อนตามคู่มือ:
 
-👉 https://wiki.seeedstudio.com/WM1302_module/
-
----
-
-## 📁 ไฟล์ที่ใช้
-
-```
-
-reset_lgw.sh
-
-````
-
-> ✅ ใช้ไฟล์นี้ **แทน reset script เดิม** ของ `sx1302_hal`
+👉 [https://wiki.seeedstudio.com/WM1302_module/](https://wiki.seeedstudio.com/WM1302_module/)
 
 ---
 
 ## ⚙️ วิธีใช้งาน
 
-### 1) copy ไฟล์ไปแทนของเดิม
+### 1) คัดลอกไฟล์ไปแทนของเดิม
 
 ไปที่โฟลเดอร์:
 
 ```bash
 cd ~/sx1302_hal/packet_forwarder
-````
+```
 
 สำรองไฟล์เดิม:
 
@@ -54,7 +79,7 @@ cp /path/to/reset_lgw.sh ~/sx1302_hal/packet_forwarder/reset_lgw.sh
 
 ---
 
-### 2) ตั้ง permission (ทำครั้งเดียว)
+### 2) ตั้ง permission
 
 ```bash
 chmod +x ~/sx1302_hal/packet_forwarder/reset_lgw.sh
@@ -62,13 +87,13 @@ chmod +x ~/sx1302_hal/packet_forwarder/reset_lgw.sh
 
 ---
 
-### 3) ทดสอบ reset
+### 3) ทดสอบการทำงาน
 
 ```bash
 ./reset_lgw.sh start
 ```
 
-หรือ:
+หรือ
 
 ```bash
 ./reset_lgw.sh stop
@@ -78,14 +103,14 @@ chmod +x ~/sx1302_hal/packet_forwarder/reset_lgw.sh
 
 ## 💡 การทำงานของสคริปต์
 
-สคริปต์นี้จะ:
+สคริปต์นี้ใช้สำหรับ:
 
-* reset SX1302 (LoRa chip)
-* enable power (LDO)
-* reset SX1261 (LBT / Spectral scan)
-* reset ADC (AD5338R)
+* 🔁 reset SX1302
+* 🔋 enable power (LDO)
+* 📡 reset SX1261
+* 🎛️ reset ADC
 
-โดยใช้ GPIO ผ่าน `/sys/class/gpio`
+โดยควบคุมผ่าน GPIO ที่ `/sys/class/gpio`
 
 ---
 
@@ -100,11 +125,11 @@ chmod +x ~/sx1302_hal/packet_forwarder/reset_lgw.sh
 
 ---
 
-## ⚠️ หมายเหตุ
+## 📝 หมายเหตุ
 
-* ใช้กับ Raspberry Pi + WM1302 เท่านั้น
+* ใช้กับ Raspberry Pi + WM1302
 * GPIO mapping อาจต้องปรับตาม hardware
-* ถ้า reset ไม่ทำงาน ให้เช็ค:
+* หาก reset ไม่ทำงาน ให้ตรวจสอบ GPIO ด้วยคำสั่ง:
 
 ```bash
 ls /sys/class/gpio/
@@ -114,13 +139,13 @@ ls /sys/class/gpio/
 
 ## 🎯 วัตถุประสงค์
 
-* ใช้แทน reset script เดิมที่มากับ sx1302_hal
+* ใช้แทน reset script เดิมของ `sx1302_hal`
 * เพิ่มความเสถียรในการ start gateway
-* แก้ปัญหา gateway ไม่ขึ้นหลัง boot
+* ช่วยแก้ปัญหา gateway ไม่ทำงานหลัง boot
 
 ---
 
-## 👨‍💻
+## 👨‍💻 ผู้พัฒนา
 
 LoRaRice Project V3
 
