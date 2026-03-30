@@ -1,5 +1,5 @@
 
-````markdown
+
 # 🌡️ BME280 Reader Auto Start Guide
 
 โปรเจกต์นี้ใช้สำหรับรัน `bmeread.py` บน Raspberry Pi แบบอัตโนมัติหลังเปิดเครื่อง
