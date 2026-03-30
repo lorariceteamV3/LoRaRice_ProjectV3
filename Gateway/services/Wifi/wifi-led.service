@@ -1,0 +1,12 @@
+[Unit]
+Description=WiFi LED daemon on GPIO19
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/wifi-led-daemon.py
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target

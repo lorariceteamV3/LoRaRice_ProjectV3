@@ -1,0 +1,16 @@
+[Unit]
+Description=LoRa Packet Forwarder
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+WorkingDirectory=/home/loraricev3-1/sx1302_hal/packet_forwarder
+ExecStart=/home/loraricev3-1/sx1302_hal/packet_forwarder/lora_pkt_fwd -c AS923->
+Restart=always
+RestartSec=10
+User=loraricev3-1s
+
+[Install]
+WantedBy=multi-user.target

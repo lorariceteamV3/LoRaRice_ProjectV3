@@ -1,0 +1,7 @@
+[Unit]
+Description=Check WiFi or launch WiFi Connect
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /usr/local/bin/wifi-check-or-connect.sh

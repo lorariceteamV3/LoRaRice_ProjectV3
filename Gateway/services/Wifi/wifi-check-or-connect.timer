@@ -1,0 +1,11 @@
+[Unit]
+Description=WiFi check + LED status
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=60s
+AccuracySec=10s
+Unit=wifi-check-or-connect.service
+
+[Install]
+WantedBy=timers.target

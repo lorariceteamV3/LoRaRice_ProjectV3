@@ -1,0 +1,15 @@
+[Unit]
+Description=BME280 Reader (bmeread.py)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=loraricev3-1
+WorkingDirectory=/home/loraricev3-1
+ExecStart=/home/loraricev3-1/venvs/bme/bin/python /home/loraricev3-1/bmeread.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
