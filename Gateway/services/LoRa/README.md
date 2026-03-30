@@ -1,5 +1,5 @@
 
-````markdown
+
 # 📡 LoRa Packet Forwarder Setup
 
 คู่มือนี้ใช้สำหรับตั้งค่า `lora_pkt_fwd.service` ให้รันอัตโนมัติ และมี watchdog คอยตรวจสอบ ถ้าหยุดจะเริ่มใหม่ให้อัตโนมัติ
